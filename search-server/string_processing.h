@@ -12,9 +12,9 @@ using namespace std;
 ostream& operator<<(ostream& out, const Document& document) ;
 
 template <typename StringContainer>
-set<string> MakeUniqueNonEmptyStrings( StringContainer& strings) {
-    set<string> non_empty_strings;
-    for (auto  str : strings) {/*убрал const & */
+set<string,less<>> MakeUniqueNonEmptyStrings( StringContainer& strings) {
+    set<string,less<>> non_empty_strings;
+    for (auto  str : strings) {
         if (!str.empty()) {
             non_empty_strings.insert(string(str));
         }

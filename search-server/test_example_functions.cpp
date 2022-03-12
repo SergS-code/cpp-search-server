@@ -40,6 +40,12 @@ void MatchDocuments(const SearchServer& search_server, const string& query) {
 
 
 
+//void PrintDocument(const Document& document) {
+//    cout << "{ "s
+//         << "document_id = "s << document.id << ", "s
+//         << "relevance = "s << document.relevance << ", "s
+//         << "rating = "s << document.rating << " }"s << endl;
+//}
 
 void PrintMatchDocumentResult(int document_id, const vector<string_view>& words, DocumentStatus status) {
     cout << "{ "s

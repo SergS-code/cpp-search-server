@@ -3,7 +3,7 @@
 
 vector<Document> RequestQueue::AddFindRequest(const string& raw_query, DocumentStatus status) {
         QueryResult rezult;
-        rezult.rez=ser.FindTopDocuments(  raw_query,  status);
+        rezult.rez=ser.FindTopDocuments( raw_query,  status);
         if(requests_.size()==sec_in_day_)
             requests_.pop_front();
         requests_.push_back(rezult);

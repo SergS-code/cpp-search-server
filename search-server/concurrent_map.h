@@ -14,7 +14,7 @@
 template <typename Key, typename Value>
 class ConcurrentMap {
 public:
-    static_assert(std::is_integral_v<Key>, "ConcurrentMap supports only integer keys"s);
+    static_assert(std::is_integral_v<Key>, "ConcurrentMap supports only integer keys");
 
     struct Access {
         std::lock_guard<std::mutex> guard;
@@ -46,6 +46,12 @@ public:
 		}
 		return result;
 	};
+
+    auto Erase(const Key& key) {
+        uint64_t tmp_key = static_cast<uint64_t>(key) % submaps.size();
+       // std::lock_guard guard(submaps[tmp_key].mutex);
+        return submaps[tmp_key].erase(key);
+    }
 
 private:
 uint64_t bucket_count_;
