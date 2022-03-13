@@ -9,35 +9,31 @@ using namespace std;
 
 class RequestQueue {
 public:
-    explicit  RequestQueue(const SearchServer& search_server):ser(search_server)
-    {
-
-    }
-
-    template <typename DocumentPredicate>
-    vector<Document> AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
-        QueryResult rezult;
-        rezult.rez=ser.FindTopDocuments(  raw_query,  document_predicate);
-        if(requests_.size()==sec_in_day_)
-            requests_.pop_front();
-        requests_.push_back(rezult);
-
-       return   rezult.rez;
-    }
+    explicit  RequestQueue(const SearchServer& search_server);
 
     vector<Document> AddFindRequest(const string& raw_query, DocumentStatus status);
-
     vector<Document> AddFindRequest(const string& raw_query);
+    template <typename DocumentPredicate>
+    vector<Document>   AddFindRequest(const string& raw_query, DocumentPredicate document_predicate);
+    int GetNoResultRequests() const;
 
-    int GetNoResultRequests() const ;
 private:
     struct QueryResult {
-      vector<Document>rez;
-      int num;
+        vector<Document>rez;
+        int num;
     };
     deque<QueryResult> requests_;
     const static int sec_in_day_ = 1440;
     const SearchServer& ser;
-
-
 };
+
+template <typename DocumentPredicate>
+vector<Document>  RequestQueue:: AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
+    QueryResult rezult;
+    rezult.rez=ser.FindTopDocuments(  raw_query,  document_predicate);
+    if(requests_.size()==sec_in_day_)
+        requests_.pop_front();
+    requests_.push_back(rezult);
+
+    return   rezult.rez;
+}

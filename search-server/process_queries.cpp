@@ -21,6 +21,4 @@ std::list<Document> ProcessQueriesJoined(
         }
     }
 	return result;
-    
-    
 }

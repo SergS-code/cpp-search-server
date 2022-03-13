@@ -23,6 +23,7 @@ vector<string_view> SplitIntoWords( string_view text) {
     return words;
 
 }
+
 vector<string> SplitIntoWords(const string& text) {
     vector<string> words;
     string word;

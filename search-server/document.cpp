@@ -10,4 +10,8 @@ ostream& operator<<(ostream& out, const Document& document) {
     return out;
 }
 
-
+Document::Document(int id, double relevance, int rating)
+    : id(id)
+    , relevance(relevance)
+    , rating(rating) {
+}

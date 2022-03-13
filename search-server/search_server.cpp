@@ -6,7 +6,6 @@ void SearchServer:: AddDocument(int document_id,  string_view  document, Documen
         throw invalid_argument("Invalid document_id"s);
     }
 
-    //const auto words = SplitIntoWordsNoStop(document);
     const auto [it, inserted] = documents_.emplace(document_id, DocumentData{ ComputeAverageRating(ratings), status, std::string(document) });
     document_ids_.insert(document_id);
     const auto words = SplitIntoWordsNoStop(it->second.str);
@@ -18,6 +17,16 @@ void SearchServer:: AddDocument(int document_id,  string_view  document, Documen
         document_to_word_freqs_[document_id][word] += inv_word_count;
         docs_duplecats[document_id].insert(string(word));
     }
+
+}
+
+SearchServer:: SearchServer( string_view stop_words_text)
+    : SearchServer(SplitIntoWords(stop_words_text)) {
+
+}
+
+SearchServer:: SearchServer(const string& stop_words_text)
+    : SearchServer(SplitIntoWords(stop_words_text)) {
 
 }
 
@@ -183,10 +192,12 @@ void SearchServer::RemoveDocument(const execution::parallel_policy&, int documen
 
     document_ids_.erase(document_id);
     documents_.erase(document_id);
+    mutex freqs_mutex;
 
     const auto& word_freqs = document_to_word_freqs_.at(document_id);
     for_each(execution::par, word_freqs.begin(), word_freqs.end(),
-             [this, document_id](const auto& item) {
+        [this, document_id,&freqs_mutex](const auto& item) {
+        lock_guard guard(freqs_mutex);
         word_to_document_freqs_.at(item.first).erase(document_id);
     });
 
@@ -243,14 +254,9 @@ int SearchServer:: ComputeAverageRating(const vector<int>& ratings) {
     if (ratings.empty()) {
         return 0;
     }
-    int rating_sum = 0;
-    for (const int rating : ratings) {
-        rating_sum += rating;
-    }
+    int rating_sum = std::accumulate(ratings.begin(), ratings.end(), 0);
     return rating_sum / static_cast<int>(ratings.size());
 }
-
-
 
 QueryWord  SearchServer:: ParseQueryWord(string_view text) const {
     if (text.empty()) {
@@ -270,9 +276,6 @@ QueryWord  SearchServer:: ParseQueryWord(string_view text) const {
 }
 
 
-
-
-
 Query  SearchServer:: ParseQuery(string_view text) const {
     Query result;
 
@@ -288,10 +291,6 @@ Query  SearchServer:: ParseQuery(string_view text) const {
     }
 
     sort(result.plus_words.begin(),result.plus_words.end());
-    // unique(result.plus_words.begin(),result.plus_words.end());
-    //result.plus_words.erase(std::unique(result.plus_words.begin(), result.plus_words.end()),result.plus_words.end());
-
-
     auto last = std::unique(result.plus_words.begin(), result.plus_words.end());
     result.plus_words.resize(std::distance(result.plus_words.begin(), last));
 
@@ -303,19 +302,7 @@ Query  SearchServer:: ParseQuery(string_view text) const {
     return result;
 }
 
-// Existence required
+
 double SearchServer:: ComputeWordInverseDocumentFreq( string_view word) const {
     return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
 }
-
-
-
-
-
-
-
-
-
-
-
-

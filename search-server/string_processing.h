@@ -22,6 +22,5 @@ set<string,less<>> MakeUniqueNonEmptyStrings( StringContainer& strings) {
     return non_empty_strings;
 }
 
-
 vector<string_view> SplitIntoWords(string_view text);
 vector<string> SplitIntoWords(const string& text);

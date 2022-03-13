@@ -8,6 +8,6 @@ using namespace std;
 
 string ReadLine();
 
-int ReadLineWithNumber() ;
+int ReadLineWithNumber();
 
 
